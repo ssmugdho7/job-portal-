@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>My CV — Edit & View</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#eef1f5; --card:rgba(255,255,255,0.85); --text:#222; --primary:#4f8cff; --border:#ddd;
+  }
+  body.dark{ --bg:#14161a; --card:rgba(20,22,26,0.95); --text:#e9eef8; --primary:#6ba8ff; --border:#2b2e35; }
+  html,body{height:100%; margin:0; padding:0; background:var(--bg); color:var(--text); font-family:"Open Sans",system-ui,Segoe UI,Arial; transition:background .25s,color .25s}
+  .wrap{display:flex;gap:18px;padding:18px;min-height:100vh;box-sizing:border-box}
+  .panel{flex:1; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; box-shadow:0 6px 28px rgba(0,0,0,0.06); backdrop-filter: blur(6px)}
+  .editor .row{display:flex; gap:10px}
+  label{font-size:13px; font-weight:600; display:block; margin:8px 0 6px}
+  input[type="text"], input[type="email"], textarea, input[type="file"]{width:100%; box-sizing:border-box; padding:10px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text)}
+  textarea{min-height:84px; resize:vertical}
+  .actions{display:flex; gap:8px; margin-top:8px; flex-wrap:wrap}
+  .btn{background:linear-gradient(135deg,var(--primary),#0056b3); color:#fff; padding:8px 12px; border-radius:8px; border:0; cursor:pointer; font-weight:700}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+  .toggle{margin-bottom:10px}
+  /* Preview / CV */
+  .cv{max-width:800px;margin:0 auto;padding:20px; background:transparent; box-sizing:border-box}
+  .cv-root{background:linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.93)); border-radius:12px; padding:22px; border:1px solid var(--border); position:relative; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.06)}
+  body.dark .cv-root{background:linear-gradient(180deg, rgba(30,34,45,0.98), rgba(30,34,45,0.95))}
+  .cv-header{display:flex; justify-content:space-between; align-items:center; gap:18px; margin-bottom:10px}
+  .name-wrap h1{margin:0;font-family:'Poppins',sans-serif;color:var(--primary); font-size:26px}
+  .name-wrap p{margin:4px 0; font-size:13px; color:var(--text)}
+  .profile-img{width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid var(--primary); box-shadow:0 6px 18px rgba(0,0,0,0.12)}
+  .section-title{margin-top:16px;color:var(--primary);font-family:'Poppins'; border-bottom:1px solid var(--border); padding-bottom:6px; font-size:16px}
+  .section-body{margin-top:10px; font-size:14px; line-height:1.5; color:var(--text)}
+  ul.skills{display:flex;gap:8px;flex-wrap:wrap; padding:0; margin:8px 0 0; list-style:none}
+  ul.skills li{background:rgba(0,0,0,0.06); padding:6px 10px; border-radius:999px; font-size:13px}
+  body.dark ul.skills li{background:rgba(255,255,255,0.04)}
+  /* PDF top margin safeguard - ensure top starts immediately */
+  @page { margin: 10mm; } /* reduce as appropriate */
+  .no-top-gap { margin-top:0 !important; padding-top:0 !important; }
+  /* responsive */
+  @media (max-width:900px){ .wrap{flex-direction:column} .profile-img{width:80px;height:80px} }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Editor -->
+    <section class="panel editor" style="max-width:520px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 style="margin:0;font-family:'Poppins'">My CV — Edit</h3>
+        <div>
+          <button class="btn toggle" id="themeToggle">🌙 Theme</button>
+        </div>
+      </div>
+
+      <label>Full name</label>
+      <input id="name" type="text">
+
+      <div class="row">
+        <div style="flex:1">
+          <label>Email</label>
+          <input id="email" type="email">
+        </div>
+        <div style="width:160px">
+          <label>Phone</label>
+          <input id="phone" type="text">
+        </div>
+      </div>
+
+      <label>Address</label>
+      <textarea id="address"></textarea>
+
+      <label>Profile image (change)</label>
+      <input id="profileUpload" type="file" accept="image/*">
+
+      <label>Profile / Summary</label>
+      <textarea id="summary"></textarea>
+
+      <label>Education</label>
+      <textarea id="education"></textarea>
+
+      <label>Experience</label>
+      <textarea id="experience"></textarea>
+
+      <label>Skills (comma separated)</label>
+      <input id="skills" type="text">
+
+      <div class="actions">
+        <button class="btn" id="saveBtn">Save</button>
+        <!-- <button class="btn" id="updatePreviewBtn">Update Preview</button> -->
+        <!-- <button class="btn ghost" id="downloadBtn">Download PDF</button> -->
+        <a class="btn ghost" style="text-decoration:none"  href="build_cv.html">Open Builder</a>
+        <button class="btn ghost" id="clearBtn" title="Clear saved CV">Clear</button>
+      </div>
+
+      <div style="margin-top:12px;font-size:13px;color:var(--text)">
+        Tip: Changes are saved to <strong>localStorage</strong>. Use "Download PDF" to export the current preview.
+      </div>
+    </section>
+
+    <!-- Preview -->
+    <section class="panel preview">
+      <div class="cv" id="cvContainer" role="document">
+        <div class="cv-root no-top-gap" id="cvRoot">
+          <div class="cv-header">
+            <div class="name-wrap">
+              <h1 id="prev-name">Your Name</h1>
+              <p id="prev-email">Email: example@email.com</p>
+              <p id="prev-phone">Phone: +8801XXXXXXXXX</p>
+              <p id="prev-address">Address: Your address here</p>
+            </div>
+            <div>
+              <img id="prev-profile-img" class="profile-img" src="https://via.placeholder.com/96" alt="profile">
+            </div>
+          </div>
+
+          <div>
+            <div class="section-title">Profile</div>
+            <div class="section-body" id="prev-summary">Write something about yourself...</div>
+          </div>
+
+          <div>
+            <div class="section-title">Education</div>
+            <div class="section-body" id="prev-education">Your education details...</div>
+          </div>
+
+          <div>
+            <div class="section-title">Experience</div>
+            <div class="section-body" id="prev-experience">Your experience details...</div>
+          </div>
+
+          <div>
+            <div class="section-title">Skills</div>
+            <div class="section-body">
+              <ul class="skills" id="prev-skills"><li>Skill 1</li></ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+
+/* Load saved CV from localStorage and populate fields */
+function loadFromStorage() {
+  const raw = localStorage.getItem('cvData');
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    $('name').value = data.name || '';
+    $('email').value = data.email || '';
+    $('phone').value = data.phone || '';
+    $('address').value = data.address || '';
+    $('summary').value = data.summary || '';
+    $('education').value = data.education || '';
+    $('experience').value = data.experience || '';
+    $('skills').value = data.skills || '';
+    if (data.profileImg) $('prev-profile-img').src = data.profileImg;
+    updatePreview();
+  } catch(e) {
+    console.warn('cvData corrupted', e);
+  }
+}
+
+/* Update preview from fields */
+function updatePreview() {
+  $('prev-name').textContent = $('name').value || 'Your Name';
+  $('prev-email').textContent = 'Email: ' + ($('email').value || 'example@email.com');
+  $('prev-phone').textContent = 'Phone: ' + ($('phone').value || '+8801XXXXXXXXX');
+  $('prev-address').textContent = 'Address: ' + ($('address').value || 'Your address here');
+  $('prev-summary').textContent = $('summary').value || 'Write something about yourself...';
+  $('prev-education').textContent = $('education').value || 'Your education details...';
+  $('prev-experience').textContent = $('experience').value || 'Your experience details...';
+  const skills = ($('skills').value || '').split(',').map(s => s.trim()).filter(Boolean);
+  $('prev-skills').innerHTML = skills.length ? skills.map(s=>`<li>${escapeHtml(s)}</li>`).join('') : '<li>Skill 1</li>';
+}
+
+/* Save to localStorage */
+function saveCV() {
+  const data = {
+    name: $('name').value,
+    email: $('email').value,
+    phone: $('phone').value,
+    address: $('address').value,
+    summary: $('summary').value,
+    education: $('education').value,
+    experience: $('experience').value,
+    skills: $('skills').value,
+    profileImg: $('prev-profile-img').src
+  };
+  localStorage.setItem('cvData', JSON.stringify(data));
+  alert('Saved to localStorage ✅');
+}
+
+/* Clear saved CV */
+function clearCV() {
+  if (!confirm('Clear saved CV from localStorage?')) return;
+  localStorage.removeItem('cvData');
+  location.reload();
+}
+
+/* Safe text -> html */
+function escapeHtml(s) {
+  return (s+'').replace(/[&<>"']/g, c=>'&#'+c.charCodeAt(0)+';');
+}
+
+/* Load profile image from file input */
+$('profileUpload').addEventListener('change', e=>{
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => $('prev-profile-img').src = ev.target.result;
+  reader.readAsDataURL(f);
+});
+
+/* Download PDF */
+if ($('downloadBtn')) {
+  $('downloadBtn').addEventListener('click', ()=>{
+    const container = document.getElementById('cvRoot');
+    const opt = {
+      margin: 0,
+      filename: (($('name').value||'My_CV').replace(/\s+/g,'_')) + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+      jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(container).save();
+  });
+}
+
+/* Theme toggle */
+const themeToggle = $('themeToggle');
+function setTheme(t){
+  document.body.classList.toggle('dark', t === 'dark');
+  localStorage.setItem('theme', t);
+  themeToggle.textContent = t==='dark' ? '☀️ Theme' : '🌙 Theme';
+}
+themeToggle.addEventListener('click', ()=> {
+  const isDark = document.body.classList.toggle('dark');
+  setTheme(isDark ? 'dark' : 'light');
+});
+(function initTheme(){
+  const s = localStorage.getItem('theme') || 'light';
+  setTheme(s);
+})();
+
+/* Live updating preview */
+['name','email','phone','address','summary','education','experience','skills']
+  .forEach(id => {
+    $(id).addEventListener('input', updatePreview);
+  });
+
+/* Buttons */
+if ($('saveBtn')) $('saveBtn').addEventListener('click', ()=>{ updatePreview(); saveCV(); });
+if ($('clearBtn')) $('clearBtn').addEventListener('click', clearCV);
+
+/* Init */
+loadFromStorage();
+</script>

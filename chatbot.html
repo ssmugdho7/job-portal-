@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Chatbot</title>
+    <style>
+        #chatbot {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        #chatbot-header {
+            background: #4285f4;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #chatbot-messages {
+            height: 200px;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 8px 12px;
+            border-radius: 18px;
+            max-width: 80%;
+        }
+        .user {
+            background: #e3f2fd;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+        .bot {
+            background: #f1f1f1;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+        #chatbot-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+        #chatbot-input input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+        #chatbot-input button {
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0 15px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        #chatbot-suggestions {
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            border-top: 1px solid #eee;
+        }
+        .suggestion {
+            background: #e3f2fd;
+            border: none;
+            border-radius: 15px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="chatbot">
+        <div id="chatbot-header">
+            <h3>Help Bot</h3>
+        </div>
+        <div id="chatbot-messages">
+            <div class="message bot">Hello! How can I help you today?</div>
+        </div>
+        <div id="chatbot-suggestions"></div>
+        <div id="chatbot-input">
+            <input type="text" id="user-message" placeholder="Type your question...">
+            <button id="send-message">Send</button>
+        </div>
+    </div>
+
+    <script>
+
+
+        // On chatbot load, restore history
+    window.addEventListener('load', () => {
+        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+        chatHistory.forEach(item => addMessage(item.text, item.sender));
+})
+
+
+        // Load FAQ data (in a real app, you would fetch this from faq.html)
+        let faqData = [];
+
+        fetch('faq.html')
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const faqItems = doc.querySelectorAll('.faq-item');
+                
+                faqData = Array.from(faqItems).map(item => ({
+                    question: item.querySelector('.question').textContent,
+                    answer: item.querySelector('.answer').textContent
+                }));
+                
+                loadSuggestions();
+            })
+            .catch(error => console.error('Error loading FAQ:', error));
+        
+        // DOM elements
+        const messagesDiv = document.getElementById('chatbot-messages');
+        const userInput = document.getElementById('user-message');
+        const sendBtn = document.getElementById('send-message');
+        const suggestionsDiv = document.getElementById('chatbot-suggestions');
+        
+        // Load suggested questions
+        function loadSuggestions() {
+            suggestionsDiv.innerHTML = '';
+            faqData.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = 'suggestion';
+                btn.textContent = item.question;
+                btn.addEventListener('click', () => {
+                    userInput.value = item.question;
+                    sendMessage();
+                });
+                suggestionsDiv.appendChild(btn);
+            });
+        }
+        
+        // Send message function
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, 'user');
+            userInput.value = '';
+            
+            // Find matching answer (case insensitive partial match)
+            const found = faqData.find(item => 
+                message.toLowerCase().includes(item.question.toLowerCase().substring(0, 15))
+            );
+            
+            // Add bot response
+            setTimeout(() => {
+                if (found) {
+                    addMessage(found.answer, 'bot');
+                } else {
+                    addMessage("I'm not sure about that. Try asking one of the suggested questions.", 'bot');
+                }
+            }, 500);
+        }
+        
+        // Add message to chat
+        function addMessage(text, sender) {
+            const msg = document.createElement('div');
+            msg.className = `message ${sender}`;
+            msg.textContent = text;
+            messagesDiv.appendChild(msg);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            // Save chat to localStorage
+            let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+            chatHistory.push({ text, sender });
+            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+        }
+        
+            // Event listeners
+            sendBtn.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+        
+        // Initialize
+        loadSuggestions();
+    </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ Database</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #4285f4;
+        }
+        .faq-item {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+        .question {
+            font-weight: bold;
+            color: #4285f4;
+            margin-bottom: 5px;
+        }
+        .answer {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Frequently Asked Questions</h1>
+    
+    <div id="faq-container">
+        <div class="faq-item">
+            <div class="question">How do I reset my password?</div>
+            <div class="answer">Go to Settings > Account > Reset Password to reset your password.</div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="question">What are your business hours?</div>
+            <div class="answer">We're open Monday-Friday, 9AM-5PM EST.</div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="question">Where can I find pricing?</div>
+            <div class="answer">Visit our Pricing page for all plan details.</div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="question">How do I contact support?</div>
+            <div class="answer">Email support@example.com or call (123) 456-7890.</div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="question">What payment methods do you accept?</div>
+            <div class="answer">We accept all major credit cards and PayPal.</div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="question">Is there a mobile app?</div>
+            <div class="answer">Yes! Our mobile app is available on iOS and Android.</div>
+        </div>
+    </div>
+
+    <script>
+        // This makes the FAQ data available to other pages
+        window.faqData = [
+            {"question": "How do I reset my password?", "answer": "Go to Settings > Account > Reset Password to reset your password."},
+            {"question": "What are your business hours?", "answer": "We're open Monday-Friday, 9AM-5PM EST."},
+            {"question": "Where can I find pricing?", "answer": "Visit our Pricing page for all plan details."},
+            {"question": "How do I contact support?", "answer": "Email support@example.com or call (123) 456-7890."},
+            {"question": "What payment methods do you accept?", "answer": "We accept all major credit cards and PayPal."},
+            {"question": "Is there a mobile app?", "answer": "Yes! Our mobile app is available on iOS and Android."}
+        ];
+    </script>
+</body>
+</html>

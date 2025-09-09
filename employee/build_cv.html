@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build Your CV</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        display: flex;
+        gap: 20px;
+        padding: 20px;
+        background: #eef1f5;
+    }
+    .form-container {
+        flex: 1;
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 20px rgba(0,0,0,0.08);
+    }
+    .preview-container {
+        flex: 1;
+        background: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        box-shadow: 0px 4px 20px rgba(0,0,0,0.05);
+        max-width: 800px;
+        position: relative;
+    }
+    input, textarea {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0 15px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+    button {
+        padding: 10px 15px;
+        margin-top: 10px;
+        cursor: pointer;
+        border: none;
+        border-radius: 6px;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        font-size: 14px;
+    }
+    button:hover {
+        background: linear-gradient(135deg, #0056b3, #003f80);
+    }
+    /* CV Styling */
+    .cv-header {
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .cv-header h1 {
+        margin: 0;
+        font-size: 28px;
+        color: #007bff;
+    }
+    .cv-header p {
+        margin: 2px 0;
+        font-size: 14px;
+        color: #444;
+    }
+    .profile-img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #007bff;
+    }
+    h2 {
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 4px;
+        margin-top: 20px;
+        font-size: 18px;
+        color: #007bff;
+    }
+    p, li {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #333;
+    }
+
+    @media print {
+    body {
+        background: white;
+        padding: 0;
+        margin: 0;
+    }
+    .preview-container {
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        border: none;
+        max-width: 100%;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Build Your CV</h2>
+    <label>Full Name</label>
+    <input type="text" id="name" oninput="updatePreview()">
+
+    <label>Email</label>
+    <input type="email" id="email" oninput="updatePreview()">
+
+    <label>Phone</label>
+    <input type="text" id="phone" oninput="updatePreview()">
+
+    <label>Address</label>
+    <textarea id="address" oninput="updatePreview()"></textarea>
+
+    <label>Profile Image</label>
+    <input type="file" id="profile-img-input" accept="image/*" onchange="loadProfileImage(event)">
+
+    <label>Summary</label>
+    <textarea id="summary" oninput="updatePreview()"></textarea>
+
+    <label>Education</label>
+    <textarea id="education" oninput="updatePreview()"></textarea>
+
+    <label>Experience</label>
+    <textarea id="experience" oninput="updatePreview()"></textarea>
+
+    <label>Skills (comma separated)</label>
+    <input type="text" id="skills" oninput="updatePreview()">
+
+    <button onclick="completeCV()">Complete</button>
+    <button onclick="downloadCV()">Download CV</button>
+</div>
+
+<div class="preview-container" id="cv-preview">
+    <div class="cv-header">
+        <div>
+            <h1 id="prev-name">Your Name</h1>
+            <p id="prev-email">Email: example@email.com</p>
+            <p id="prev-phone">Phone: +8801XXXXXXXXX</p>
+            <p id="prev-address">Address: Your address here</p>
+        </div>
+        <div>
+            <img id="prev-profile-img" class="profile-img" src="https://via.placeholder.com/100" alt="Profile">
+        </div>
+    </div>
+    <h2>Profile</h2>
+    <p id="prev-summary">Write something about yourself...</p>
+
+    <h2>Education</h2>
+    <p id="prev-education">Your education details...</p>
+
+    <h2>Experience</h2>
+    <p id="prev-experience">Your experience details...</p>
+
+    <h2>Skills</h2>
+    <ul id="prev-skills"><li>Skill 1</li></ul>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+function updatePreview() {
+    document.getElementById('prev-name').textContent = document.getElementById('name').value || "Your Name";
+    document.getElementById('prev-email').textContent = "Email: " + (document.getElementById('email').value || "example@email.com");
+    document.getElementById('prev-phone').textContent = "Phone: " + (document.getElementById('phone').value || "+8801XXXXXXXXX");
+    document.getElementById('prev-address').textContent = "Address: " + (document.getElementById('address').value || "Your address here");
+    document.getElementById('prev-summary').textContent = document.getElementById('summary').value || "Write something about yourself...";
+    document.getElementById('prev-education').textContent = document.getElementById('education').value || "Your education details...";
+    document.getElementById('prev-experience').textContent = document.getElementById('experience').value || "Your experience details...";
+    let skills = document.getElementById('skills').value.split(",").map(s => s.trim()).filter(s => s);
+    document.getElementById('prev-skills').innerHTML = skills.map(s => `<li>${s}</li>`).join('') || "<li>Skill 1</li>";
+}
+
+function loadProfileImage(event) {
+    let file = event.target.files[0];
+    if (file) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('prev-profile-img').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+function completeCV() {
+    let cvData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        address: document.getElementById('address').value,
+        summary: document.getElementById('summary').value,
+        education: document.getElementById('education').value,
+        experience: document.getElementById('experience').value,
+        skills: document.getElementById('skills').value,
+        profileImg: document.getElementById('prev-profile-img').src
+    };
+    localStorage.setItem('cvData', JSON.stringify(cvData));
+    alert("CV saved! You can edit it later in my_cv.html");
+    window.location.href = "my_cv.html";
+}
+
+function downloadCV() {
+    let element = document.getElementById('cv-preview');
+    let opt = {
+        margin: [0, 0, 0, 0], // No margin
+        filename: 'My_CV.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+        jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+    
+    html2pdf().set(opt).from(element).save();
+}
+</script>
+
+</body>
+</html>
